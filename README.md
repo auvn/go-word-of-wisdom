@@ -1,0 +1,1 @@
+# go-word-of-wisdom
