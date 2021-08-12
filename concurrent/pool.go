@@ -4,8 +4,6 @@ import (
 	"sync"
 )
 
-var _ Goer = (*WorkersPool)(nil)
-
 type WorkersPool struct {
 	jobs chan func()
 	wg   sync.WaitGroup
