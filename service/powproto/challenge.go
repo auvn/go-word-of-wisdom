@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"time"
 
 	"github.com/auvn/go-word-of-wisdom/pow/challenge"
 	"github.com/auvn/go-word-of-wisdom/service/server"
@@ -68,7 +69,25 @@ func NewKeepAliveLink(cv challenge.ChooseVerifier) *KeepAliveLink {
 	}
 }
 
-func (d *KeepAliveLink) Run(conn net.Conn) (bool, error) {
+func (d *KeepAliveLink) Run(conn net.Conn) (ok bool, err error) {
+	// TODO: set deadline according to difficulty
+	deadline := time.Now().Add(2 * time.Second)
+	if err := conn.SetDeadline(deadline); err != nil {
+		return false, fmt.Errorf("set deadline: %w", err)
+	}
+
+	defer func() {
+		if dErr := conn.SetDeadline(time.Time{}); dErr != nil {
+			if err != nil {
+				err = fmt.Errorf("%w: reset deadline: %s", err, dErr)
+				return
+			}
+
+			ok = false
+			err = fmt.Errorf("reset deadline: %w", dErr)
+		}
+	}()
+
 	proto := challenge.Protocol{ReadWriter: conn}
 
 	puzzle := d.challenge.Choose(nil)

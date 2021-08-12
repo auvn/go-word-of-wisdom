@@ -89,7 +89,7 @@ func (p *Protocol) ReadPuzzle() (*Puzzle, error) {
 func (p *Protocol) readNonce() (Nonce, error) {
 	var nonce Nonce
 	if err := p.readExact(nonce[:]); err != nil {
-		return nonce, fmt.Errorf("read nonce")
+		return nonce, fmt.Errorf("read nonce: %w", err)
 	}
 
 	return nonce, nil

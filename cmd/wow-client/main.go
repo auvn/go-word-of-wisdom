@@ -7,6 +7,7 @@ import (
 	"net"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/auvn/go-word-of-wisdom/pow/challenge"
 )
@@ -82,8 +83,12 @@ func protocolRun(rw io.ReadWriter) error {
 		return fmt.Errorf("read puzzle: %w", err)
 	}
 
+	now := time.Now()
 	solution := challenge.Simple.Solve(puzzle)
-	printf("puzzle: %q\nsolution: %q\n\n", puzzle, solution)
+	printf("puzzle: %q\nsolution: %q\n\nspent: %s\n\n",
+		puzzle,
+		solution,
+		time.Now().Sub(now))
 
 	if err := proto.WriteSolution(solution); err != nil {
 		return fmt.Errorf("write solution: %w", err)
